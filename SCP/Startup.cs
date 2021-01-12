@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SCP.Core.Interfaces;
+using SCP.Core.ModelEntity;
+using SCP.Hubs;
 using SCP.Infraestructure.Data;
 using SCP.Infraestructure.Repositories;
 
@@ -29,6 +31,19 @@ namespace SCP
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("todos",
+                    builder => {
+                        builder.AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .SetIsOriginAllowed((Host) => true)
+                        .AllowCredentials();
+                    });
+            });
+
+            services.AddSignalR();
+
             services.AddDbContext<SCPContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("Conn")));
 
@@ -46,6 +61,8 @@ namespace SCP
 
             app.UseHttpsRedirection();
 
+            app.UseCors("todos");
+
             app.UseRouting();
 
             app.UseAuthorization();
@@ -53,6 +70,7 @@ namespace SCP
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<Notificacion>("noti");
             });
         }
     }

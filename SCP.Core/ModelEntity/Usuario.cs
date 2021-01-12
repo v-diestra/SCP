@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SCP.Core.ModelEntity
 {
-    public partial class Usuario
+    public class Usuario
     {
         public int IdUsuario { get; set; }
         public string Nombre { get; set; }
